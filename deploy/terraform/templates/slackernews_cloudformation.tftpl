@@ -1,0 +1,46 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Parameters:
+  SubscriptionType:
+    Type: String
+    Description: |
+      Is this a paid or trial subscription?
+    AllowedValues:
+      - "Paid"
+      - "Trial"
+
+  BetaProgram:
+    Type: String
+    Description: |
+      You can choose to be part of the Slackernews Beta program and receive early access to
+      new releases and features. 
+    AllowedValues:
+      - "Yes"
+      - "No"
+
+  Email:
+    Type: String
+    Description: |
+      Email to use for you description. This will be your login for accessing the Slackernews
+      Helm chart and will not be used for any other purposes.
+
+Mappings:
+  LicenseType:
+    Paid:
+      Type: prod
+    Trial:
+      Type: trial
+      
+Conditions:
+  IsBeta: !Equals [ BetaProgram, "Yes" ]
+
+Resources:
+  CreateLicense:
+    Type: Custom::LambdaTrigger
+    Properties:
+      ServiceToken: ${lambda_function_arn}
+      Name: !Sub '$${AWS::AccountId}-$${AWS::Region}-$${AWS::StackId}' 
+      Email: !Ref Email
+      AppId: ${app_id}
+      Channel: !If [ IsBeta, Beta, Stable ]
+      Type: !FindInMap [ LicenseType, !Ref SubscriptionType, Type ]
