@@ -44,3 +44,14 @@ Resources:
       AppId: ${app_id}
       Channel: !If [ IsBeta, Beta, Stable ]
       Type: !FindInMap [ LicenseType, !Ref SubscriptionType, Type ]
+
+Outputs:
+  InstallUri:
+    Description: URI for the embedded clustser download
+    Value: !GetAtt CreateLicense.InstallerUri
+  DownloadToken:
+    Description: Authorization token for installer download
+    Value: !GetAtt CreateLicense.DownloadToken
+  LicenseUri:
+    Description: URI of the Replicated license file
+    Value: !GetAtt CreateLicense.LicenseFileUri
